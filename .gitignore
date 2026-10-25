@@ -18,11 +18,14 @@ local.properties
 *.iws
 *.ipr
 
-# Temporary & Log files
+# Temporary, Document & Log files
 *.log
 *.tmp
 .DS_Store
 Thumbs.db
+*.docx
+*.pptx
+generate_docs.py
 
 # Python & ML temporary files
 __pycache__/
