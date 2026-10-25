@@ -1,6 +1,18 @@
-# AgriShield AI - Deep Learning Model Training Pipeline
+# AgriShield AI - Machine Learning Pipeline Guide
 
-This folder contains the complete deep learning training, evaluation, and mobile model export scripts for **AgriShield AI**.
+This folder contains the complete, modular deep learning training, evaluation, and mobile model export pipeline for **AgriShield AI**.
+
+---
+
+## 📁 Pipeline File Map (Numbered for Easy Identification)
+
+| Step | Script Name | Exact Role / Function |
+| :--- | :--- | :--- |
+| **01** | [`01_dataset_loader_and_augmentation.py`](./01_dataset_loader_and_augmentation.py) | **Dataset Loading & Preprocessing**: Loads PlantVillage leaf images, performs class indexing, train/validation split, data augmentation (flip, rotation, zoom, translation), and dataset statistics inspection. |
+| **02** | [`02_train_mobilenetv2_model.py`](./02_train_mobilenetv2_model.py) | **Main ML Model Architecture & Training**: Builds MobileNetV2 transfer learning model, classification head (Dropout, Dense(256), BatchNorm, Softmax), Phase 1 feature extraction, and Phase 2 fine-tuning. |
+| **03** | [`03_evaluate_model_metrics.py`](./03_evaluate_model_metrics.py) | **Evaluation & Accuracy Metrics**: Evaluates model on test data, calculates Top-1/Top-3/Top-5 accuracy, Precision, Recall, F1-Score, and generates `confusion_matrix.png`. |
+| **04** | [`04_convert_and_quantize_tflite.py`](./04_convert_and_quantize_tflite.py) | **Quantization & Mobile TFLite Export**: Converts `.keras` model into optimized `.tflite` mobile flatbuffer with Float16/dynamic quantization and syncs weights directly into Android assets. |
+| **—** | [`requirements.txt`](./requirements.txt) | Python dependencies (`tensorflow`, `numpy`, `scikit-learn`, `matplotlib`). |
 
 ---
 
@@ -9,112 +21,31 @@ This folder contains the complete deep learning training, evaluation, and mobile
 - **Input Resolution**: `224 × 224 × 3` (RGB)
 - **Normalization Formula**:
   $$\text{Normalized} = \frac{\text{Pixel}}{127.5} - 1.0$$
-  This maps raw `[0, 255]` pixel intensities strictly to the range `[-1.0, 1.0]`. Both the Python training pipeline and the Flutter `TfliteClassifier` use this exact formula.
+  Maps raw `[0, 255]` pixel intensities to `[-1.0, 1.0]`. Both the Python training pipeline and Android `TFliteClassifier.java` use this exact formula.
 - **Dataset**: PlantVillage (38 crop and disease classes)
-- **Target Target Output**: 38 Softmax class probability distribution
+- **Target Output**: 38 Softmax class probability distribution
 
 ---
 
-## 📁 Directory Structure
-```
-/ml_training
-  ├── train_model.py          # MobileNetV2 transfer learning + fine-tuning
-  ├── evaluate_model.py       # Accuracy, classification report, confusion matrix
-  ├── convert_to_tflite.py    # Keras -> TFLite converter with quantization
-  ├── requirements.txt        # Python dependencies
-  └── README.md               # Training and Colab instructions
-```
+## ⚡ How to Run the Pipeline
 
----
-
-## ⚡ Quick Start: Train on Google Colab (Recommended)
-
-Google Colab provides free GPU (T4) compute to train the model in ~15 minutes.
-
-### Step 1: Open Google Colab
-1. Go to [colab.research.google.com](https://colab.research.google.com).
-2. Create a **New Notebook** and set runtime to **GPU**:  
-   `Runtime > Change runtime type > T4 GPU`.
-
-### Step 2: Download PlantVillage Dataset
-In a Colab cell, download the PlantVillage dataset:
-```python
-# Download PlantVillage dataset (Color segmented / raw)
-!git clone https://github.com/spMohanty/PlantVillage-Dataset.git
-dataset_dir = "/content/PlantVillage-Dataset/raw/color"
-```
-*(Or use Kaggle API: `kaggle datasets download -d emmarex/plantdisease`)*
-
-### Step 3: Install Requirements
+### 1. Inspect Dataset
 ```bash
-!pip install tensorflow numpy opencv-python scikit-learn matplotlib
+python 01_dataset_loader_and_augmentation.py --dataset_dir ./dataset/PlantVillage
 ```
 
-### Step 4: Run Training Script
-Upload `train_model.py` to Colab and run:
+### 2. Train MobileNetV2 Model
 ```bash
-python train_model.py \
-  --dataset_dir /content/PlantVillage-Dataset/raw/color \
-  --epochs 20 \
-  --batch_size 32 \
-  --learning_rate 0.001 \
-  --fine_tune_epochs 10 \
-  --output_dir /content/output
+python 02_train_mobilenetv2_model.py --dataset_dir ./dataset/PlantVillage --epochs 20 --output_dir ./output
 ```
 
-### Step 5: Convert to TFLite
-Upload `convert_to_tflite.py` and run:
+### 3. Evaluate Performance & Plot Confusion Matrix
 ```bash
-python convert_to_tflite.py \
-  --model_path /content/output/best_agrishield_model.keras \
-  --labels_path /content/output/labels.txt \
-  --quantize float16 \
-  --output_dir /content/output
+python 03_evaluate_model_metrics.py --model_path ./output/best_agrishield_model.keras --dataset_dir ./dataset/PlantVillage
 ```
 
-### Step 6: Download Files to Flutter App
-Download the exported files:
-- `/content/output/plant_disease_model.tflite` ➔ save to `agrishield_app/assets/models/plant_disease_model.tflite`
-- `/content/output/labels.txt` ➔ save to `agrishield_app/assets/labels.txt`
-
----
-
-## 💻 Local Machine Training Instructions
-
-### 1. Set Up Python Virtual Environment
+### 4. Convert to Optimized TFLite for Android
 ```bash
-# Using Python 3.10 or 3.11
-python -m venv venv
-# Windows:
-venv\Scripts\activate
-# Linux/Mac:
-source venv/bin/activate
-
-pip install -r requirements.txt
+python 04_convert_and_quantize_tflite.py --model_path ./output/best_agrishield_model.keras --quantize float16
 ```
-
-### 2. Run Training
-```bash
-python train_model.py --dataset_dir ./dataset/PlantVillage --epochs 20 --output_dir ./output
-```
-
-### 3. Evaluate Model
-```bash
-python evaluate_model.py --model_path ./output/best_agrishield_model.keras --dataset_dir ./dataset/PlantVillage
-```
-This generates `confusion_matrix.png`, `classification_report.txt`, and `metrics_summary.json`.
-
-### 4. Convert to TFLite
-```bash
-python convert_to_tflite.py --model_path ./output/best_agrishield_model.keras --quantize float16
-```
-This will automatically place `plant_disease_model.tflite` and `labels.txt` in `../agrishield_app/assets/`.
-
----
-
-## 🧪 Testing Prior to Training (Placeholder Generator)
-If you wish to test the Flutter app's complete on-device TFLite pipeline immediately without running full training, simply execute:
-```bash
-python convert_to_tflite.py --generate_placeholder_model
-```
-This builds an authentic MobileNetV2 mobile TFLite flatbuffer and places it directly into the Flutter app's assets!
+*(Automatically syncs `plant_disease_model.tflite` and `labels.txt` into `agrishield_app/android/app/src/main/assets/`)*
