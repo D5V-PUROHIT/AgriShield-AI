@@ -1,0 +1,27 @@
+# Gradle and Build Cache
+.gradle/
+**/.gradle/
+build/
+**/build/
+
+# Local SDK configuration (Contains local PC paths - DO NOT COMMIT)
+local.properties
+**/local.properties
+
+# Android Studio & IntelliJ IDEA
+.idea/
+**/.idea/
+*.iml
+*.iws
+*.ipr
+
+# Temporary & Log files
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Python & ML temporary files
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/

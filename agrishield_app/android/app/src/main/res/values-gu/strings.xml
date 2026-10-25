@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AgriShield AI</string>
+
+    <!-- Home Screen -->
+    <string name="advisor_title">એઆઈ પાક ડૉક્ટર અને સલાહકાર</string>
+    <string name="advisor_desc">ડીપ લર્નિંગ દ્વારા સંચાલિત ત્વરિત ઑફલાઇન છોડ રોગ નિદાન, રાસાયણિક માત્રા અને જૈવિક ઉપચાર.</string>
+    <string name="diagnose_heading">છોડના પાંદડાનું નિદાન કરો</string>
+    <string name="take_photo">ફોટો પાડો</string>
+    <string name="take_photo_desc">કેમેરાનો ઉપયોગ કરો</string>
+    <string name="upload">અપલોડ કરો</string>
+    <string name="upload_desc">ગેલેરીમાંથી પસંદ કરો</string>
+
+    <string name="photo_guide_title">પાંદડાનો સારો ફોટો કેવી રીતે લેવો:</string>
+    <string name="photo_guide_1">એક ચેપગ્રસ્ત પાંદડાને સ્પષ્ટ ફોકસમાં રાખો.</string>
+    <string name="photo_guide_2">તીવ્ર છાયા વગર કુદરતી અજવાળું સુનિશ્ચિત કરો.</string>
+    <string name="photo_guide_3">ડાઘ અને ચિહ્નોને ફ્રેમની વચ્ચે રાખો.</string>
+
+    <string name="recent_scans">તાજેતરના સ્કેન</string>
+    <string name="view_all">બધા જુઓ</string>
+    <string name="no_past_scans">હજુ સુધી કોઈ સ્કેન નથી. પાંદડાનો ફોટો પાડીને શરૂઆત કરો!</string>
+
+    <!-- Detection Screen -->
+    <string name="analyzing_image">એઆઈ મોડેલ દ્વારા ફોટોનું વિશ્લેષણ થઈ રહ્યું છે...</string>
+    <string name="low_confidence_title">અનિશ્ચિત નિદાન</string>
+    <string name="low_confidence_msg">વિશ્વાસ ઓછો છે (&lt;60%). ચોક્કસ નિદાન માટે કૃપા કરીને સારા પ્રકાશમાં સ્પષ્ટ ફોટો ફરીથી લો.</string>
+    <string name="retake_photo">ફરીથી ફોટો લો</string>
+    <string name="view_diagnosis_anyway">તો પણ સંભવિત નિદાન જુઓ</string>
+
+    <!-- Result Screen -->
+    <string name="crop">પાક</string>
+    <string name="disease">રોગ</string>
+    <string name="confidence">વિશ્વાસ</string>
+    <string name="healthy_plant">છોડ તંદુરસ્ત છે</string>
+    <string name="healthy_msg">કોઈ રોગ મળ્યો નથી! યોગ્ય પિયત, સૂર્યપ્રકાશ અને જૈવિક કાળજી ચાલુ રાખો.</string>
+
+    <string name="tab_symptoms">લક્ષણો અને કારણો</string>
+    <string name="tab_chemical">રાસાયણિક જંતુનાશકો</string>
+    <string name="tab_organic">જૈવિક ઉપચાર</string>
+    <string name="tab_prevention">સાવચેતી અને નિવારણ</string>
+
+    <string name="symptoms">લક્ષણો</string>
+    <string name="causes">કારણો</string>
+    <string name="recommended_pesticides">ભલામણ કરેલ જંતુનાશકો</string>
+    <string name="organic_remedies">જૈવિક ઉપચાર</string>
+    <string name="precautions">સાવચેતીઓ</string>
+    <string name="prevention_tips">નિવારણ ટિપ્સ</string>
+
+    <string name="save_scan">ઇતિહાસમાં સાચવો</string>
+    <string name="saved_to_history">સ્કેન ઇતિહાસમાં સચવાઈ ગયું!</string>
+
+    <!-- History Screen -->
+    <string name="history_title">સ્કેન ઇતિહાસ</string>
+    <string name="delete">હટાવો</string>
+    <string name="scan_deleted">સ્કેન કાઢી નાખવામાં આવ્યું.</string>
+
+    <!-- About Screen -->
+    <string name="about_title">AgriShield AI વિશે</string>
+    <string name="about_desc">AgriShield AI એ ખેડૂતોને ત્વરિત રોગ ઓળખ અને ટકાઉ પાક સંભાળ માટે સક્ષમ બનાવવા માટે બનાવેલ એક ઑફલાઇન ડૉક્ટર છે.</string>
+    <string name="disclaimer_title">સલાહકારી અસ્વીકરણ</string>
+    <string name="disclaimer_msg">આ એપ્લિકેશનમાં આપવામાં આવેલી ભલામણો માત્ર સલાહકારી છે. વપરાશકર્તાઓએ લેબલ નિર્દેશોનું પાલન કરવું જોઈએ અને કૃષિ અધિકારીની સલાહ લેવી જોઈએ.</string>
+
+    <!-- Select Language -->
+    <string name="select_language">ભાષા પસંદ કરો</string>
+    <string name="english">English</string>
+    <string name="hindi">हिंदी (Hindi)</string>
+    <string name="gujarati">ગુજરાતી (Gujarati)</string>
+</resources>

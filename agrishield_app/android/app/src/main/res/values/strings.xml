@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AgriShield AI</string>
+
+    <!-- Home Screen -->
+    <string name="advisor_title">AI Crop Doctor &amp; Advisor</string>
+    <string name="advisor_desc">Instant offline plant disease diagnosis, chemical dosages, and organic remedies powered by deep learning.</string>
+    <string name="diagnose_heading">Diagnose Plant Leaf</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="take_photo_desc">Use Camera</string>
+    <string name="upload">Upload</string>
+    <string name="upload_desc">From Gallery</string>
+
+    <string name="photo_guide_title">How to take a good leaf photo:</string>
+    <string name="photo_guide_1">Place a single infected leaf in sharp focus.</string>
+    <string name="photo_guide_2">Ensure bright, natural daylight without harsh shadows.</string>
+    <string name="photo_guide_3">Center the spots and lesions clearly in the frame.</string>
+
+    <string name="recent_scans">Recent Scans</string>
+    <string name="view_all">View All</string>
+    <string name="no_past_scans">No past scans yet. Start by capturing a leaf!</string>
+
+    <!-- Detection Screen -->
+    <string name="analyzing_image">Analyzing leaf photo using AI model...</string>
+    <string name="low_confidence_title">Uncertain Diagnosis</string>
+    <string name="low_confidence_msg">Confidence is low (&lt;60%). Please retake a clearer photo in good lighting to get an accurate diagnosis.</string>
+    <string name="retake_photo">Retake Photo</string>
+    <string name="view_diagnosis_anyway">View Best Match Anyway</string>
+
+    <!-- Result Screen -->
+    <string name="crop">Crop</string>
+    <string name="disease">Disease</string>
+    <string name="confidence">Confidence</string>
+    <string name="healthy_plant">Plant is Healthy</string>
+    <string name="healthy_msg">No disease detected! Keep maintaining proper watering, sunlight, and organic soil care.</string>
+
+    <string name="tab_symptoms">Symptoms &amp; Causes</string>
+    <string name="tab_chemical">Chemical Pesticides</string>
+    <string name="tab_organic">Organic Remedies</string>
+    <string name="tab_prevention">Precautions &amp; Prevention</string>
+
+    <string name="symptoms">Symptoms</string>
+    <string name="causes">Causes</string>
+    <string name="recommended_pesticides">Recommended Pesticides</string>
+    <string name="organic_remedies">Organic Remedies</string>
+    <string name="precautions">Precautions</string>
+    <string name="prevention_tips">Prevention Tips</string>
+
+    <string name="save_scan">Save to History</string>
+    <string name="saved_to_history">Scan saved to history!</string>
+
+    <!-- History Screen -->
+    <string name="history_title">Scan History</string>
+    <string name="delete">Delete</string>
+    <string name="scan_deleted">Scan deleted.</string>
+
+    <!-- About Screen -->
+    <string name="about_title">About AgriShield AI</string>
+    <string name="about_desc">AgriShield AI is an offline deep learning crop doctor designed to empower farmers with instant disease identification and sustainable crop care recommendations.</string>
+    <string name="disclaimer_title">Advisory Disclaimer</string>
+    <string name="disclaimer_msg">Pesticide suggestions provided in this app are strictly advisory. Users must read and follow manufacturer label instructions, wear protective gear during application, and consult a local agricultural extension officer before chemical usage.</string>
+
+    <!-- Select Language -->
+    <string name="select_language">Select Language</string>
+    <string name="english">English</string>
+    <string name="hindi">हिंदी (Hindi)</string>
+    <string name="gujarati">ગુજરાતી (Gujarati)</string>
+</resources>
