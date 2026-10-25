@@ -3,6 +3,9 @@
 **/.gradle/
 build/
 **/build/
+*.apk
+*.aab
+output/
 
 # Local SDK configuration (Contains local PC paths - DO NOT COMMIT)
 local.properties
