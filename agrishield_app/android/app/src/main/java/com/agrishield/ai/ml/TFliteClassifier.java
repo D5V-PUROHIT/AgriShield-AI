@@ -41,9 +41,170 @@ public class TFliteClassifier {
     private final DatabaseHelper dbHelper;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
+    public static class BotanicalValidationResult {
+        private final boolean isPlantSubject;
+        private final float botanicalRatio;
+        private final String status; // "VALID_CROP", "HUMAN_DETECTED", "NON_LIVING_OBJECT", "INSUFFICIENT_FOLIAGE"
+
+        public BotanicalValidationResult(boolean isPlantSubject, float botanicalRatio, String status) {
+            this.isPlantSubject = isPlantSubject;
+            this.botanicalRatio = botanicalRatio;
+            this.status = status;
+        }
+
+        public boolean isPlantSubject() { return isPlantSubject; }
+        public float getBotanicalRatio() { return botanicalRatio; }
+        public String getStatus() { return status; }
+    }
+
     public interface InferenceCallback {
-        void onSuccess(List<PredictionResult> predictions);
+        void onSuccess(List<PredictionResult> predictions, BotanicalValidationResult validation);
         void onError(Exception e);
+    }
+
+    public static BotanicalValidationResult validateBotanicalContent(Bitmap originalBitmap) {
+        if (originalBitmap == null) {
+            return new BotanicalValidationResult(false, 0f, "NULL_BITMAP");
+        }
+
+        // Downscale to 112x112 for rapid color spectrum inspection (< 5 ms)
+        int sampleSize = 112;
+        Bitmap sample = Bitmap.createScaledBitmap(originalBitmap, sampleSize, sampleSize, false);
+        int[] pixels = new int[sampleSize * sampleSize];
+        sample.getPixels(pixels, 0, sampleSize, 0, 0, sampleSize, sampleSize);
+        if (sample != originalBitmap) {
+            sample.recycle();
+        }
+
+        int botanicalCount = 0;
+        int skinCount = 0;
+        int achromaticCount = 0;
+        float[] hsv = new float[3];
+
+        for (int p : pixels) {
+            int r = (p >> 16) & 0xFF;
+            int g = (p >> 8) & 0xFF;
+            int b = p & 0xFF;
+
+            android.graphics.Color.RGBToHSV(r, g, b, hsv);
+            float h = hsv[0];
+            float s = hsv[1];
+            float v = hsv[2];
+
+            // 1. Botanical Green / Crop Foliage (Chlorophyll range: 45° to 170°)
+            boolean isGreenFoliage = (h >= 45f && h <= 170f && s >= 0.15f && v >= 0.12f);
+
+            // 2. Chlorotic / Yellowing plant disease tissue (32° to 45°, vibrant yellow-green)
+            boolean isYellowChlorotic = (h >= 32f && h < 45f && s >= 0.22f && v >= 0.25f);
+
+            // 3. Necrotic Leaf Blight / Rust spots (15° to 32°, brown/russet on leaf tissue)
+            boolean isNecroticSpot = (h >= 15f && h < 32f && s >= 0.20f && v >= 0.12f && v <= 0.65f && r > b && g > b);
+
+            // 4. Botanical fruit pigmentation (e.g. red tomato with foliage)
+            boolean isBotanicalFruitRed = (h >= 345f || h <= 14f) && s >= 0.40f && v >= 0.25f;
+
+            if (isGreenFoliage || isYellowChlorotic || isNecroticSpot || isBotanicalFruitRed) {
+                botanicalCount++;
+            }
+
+            // 5. Human Skin Detection (Skin hue cluster, R > G > B with red-green separation)
+            boolean isSkin = ((h <= 30f || h >= 335f) && s >= 0.16f && s <= 0.68f && v >= 0.30f && v <= 0.95f && r > g && g > b && (r - g) > 15);
+            if (isSkin) {
+                skinCount++;
+            }
+
+            // 6. Artificial achromatic (pure black headphones, dark plastic, neutral gray/white desk)
+            boolean isAchromatic = (s < 0.14f || v < 0.14f);
+            if (isAchromatic) {
+                achromaticCount++;
+            }
+        }
+
+        int total = pixels.length;
+        float botanicalRatio = (float) botanicalCount / total;
+        float skinRatio = (float) skinCount / total;
+        float achromaticRatio = (float) achromaticCount / total;
+
+        // Human detection gate: skin tones prominent with negligible botanical presence
+        if (skinRatio > 0.20f && botanicalRatio < 0.10f) {
+            return new BotanicalValidationResult(false, botanicalRatio, "HUMAN_DETECTED");
+        }
+
+        // Artificial object gate: black headphones, metallic objects, neutral desk
+        if (achromaticRatio > 0.60f && botanicalRatio < 0.08f) {
+            return new BotanicalValidationResult(false, botanicalRatio, "NON_LIVING_OBJECT");
+        }
+
+        // Minimum botanical foliage presence threshold: at least 10% of image must have plant characteristics
+        if (botanicalRatio < 0.10f) {
+            return new BotanicalValidationResult(false, botanicalRatio, "INSUFFICIENT_FOLIAGE");
+        }
+
+        return new BotanicalValidationResult(true, botanicalRatio, "VALID_CROP");
+    }
+
+    public void classifyImageAsync(Bitmap originalBitmap, InferenceCallback callback) {
+        executor.execute(() -> {
+            try {
+                BotanicalValidationResult validation = validateBotanicalContent(originalBitmap);
+                List<PredictionResult> results = classifyImageSync(originalBitmap);
+                callback.onSuccess(results, validation);
+            } catch (Exception e) {
+                Log.e(TAG, "Inference error: ", e);
+                callback.onError(e);
+            }
+        });
+    }
+
+    public List<PredictionResult> classifyImageSync(Bitmap originalBitmap) {
+        if (interpreter == null || labels == null) {
+            throw new IllegalStateException("Classifier not initialized");
+        }
+
+        // Resize bitmap to 224x224
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, INPUT_SIZE, INPUT_SIZE, true);
+
+        // Convert Bitmap to ByteBuffer normalized [-1.0, 1.0] matching MobileNetV2 preprocess_input
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(4 * INPUT_SIZE * INPUT_SIZE * PIXEL_SIZE);
+        byteBuffer.order(ByteOrder.nativeOrder());
+
+        int[] intValues = new int[INPUT_SIZE * INPUT_SIZE];
+        scaledBitmap.getPixels(intValues, 0, scaledBitmap.getWidth(), 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight());
+
+        int pixel = 0;
+        for (int i = 0; i < INPUT_SIZE; ++i) {
+            for (int j = 0; j < INPUT_SIZE; ++j) {
+                final int val = intValues[pixel++];
+                // Exact MobileNetV2 normalization: (pixel - 127.5) / 127.5 -> [-1.0, 1.0]
+                byteBuffer.putFloat((((val >> 16) & 0xFF) - IMAGE_MEAN) / IMAGE_STD);
+                byteBuffer.putFloat((((val >> 8) & 0xFF) - IMAGE_MEAN) / IMAGE_STD);
+                byteBuffer.putFloat(((val & 0xFF) - IMAGE_MEAN) / IMAGE_STD);
+            }
+        }
+
+        // Run inference
+        float[][] output = new float[1][labels.size()];
+        interpreter.run(byteBuffer, output);
+
+        // Process outputs into PredictionResult list
+        List<PredictionResult> predictions = new ArrayList<>();
+        for (int i = 0; i < labels.size(); i++) {
+            String labelKey = labels.get(i);
+            float confidence = output[0][i];
+            PredictionResult res = new PredictionResult(labelKey, confidence);
+
+            // Fetch disease info from SQLite
+            Disease disease = dbHelper.getDiseaseById(labelKey);
+            res.setDisease(disease);
+
+            predictions.add(res);
+        }
+
+        // Sort descending by confidence score
+        Collections.sort(predictions);
+
+        // Return Top 3 predictions
+        return predictions.subList(0, Math.min(3, predictions.size()));
     }
 
     public TFliteClassifier(Context context) {
@@ -80,67 +241,7 @@ public class TFliteClassifier {
         return labelList;
     }
 
-    public void classifyImageAsync(Bitmap originalBitmap, InferenceCallback callback) {
-        executor.execute(() -> {
-            try {
-                List<PredictionResult> results = classifyImageSync(originalBitmap);
-                callback.onSuccess(results);
-            } catch (Exception e) {
-                Log.e(TAG, "Inference error: ", e);
-                callback.onError(e);
-            }
-        });
-    }
 
-    public List<PredictionResult> classifyImageSync(Bitmap originalBitmap) {
-        if (interpreter == null || labels == null) {
-            throw new IllegalStateException("Classifier not initialized");
-        }
-
-        // Resize bitmap to 224x224
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, INPUT_SIZE, INPUT_SIZE, true);
-
-        // Convert Bitmap to ByteBuffer normalized [-1.0, 1.0]
-        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(4 * INPUT_SIZE * INPUT_SIZE * PIXEL_SIZE);
-        byteBuffer.order(ByteOrder.nativeOrder());
-
-        int[] intValues = new int[INPUT_SIZE * INPUT_SIZE];
-        scaledBitmap.getPixels(intValues, 0, scaledBitmap.getWidth(), 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight());
-
-        int pixel = 0;
-        for (int i = 0; i < INPUT_SIZE; ++i) {
-            for (int j = 0; j < INPUT_SIZE; ++j) {
-                final int val = intValues[pixel++];
-                byteBuffer.putFloat(((val >> 16) & 0xFF) / 255.0f);
-                byteBuffer.putFloat(((val >> 8) & 0xFF) / 255.0f);
-                byteBuffer.putFloat((val & 0xFF) / 255.0f);
-            }
-        }
-
-        // Run inference
-        float[][] output = new float[1][labels.size()];
-        interpreter.run(byteBuffer, output);
-
-        // Process outputs into PredictionResult list
-        List<PredictionResult> predictions = new ArrayList<>();
-        for (int i = 0; i < labels.size(); i++) {
-            String labelKey = labels.get(i);
-            float confidence = output[0][i];
-            PredictionResult res = new PredictionResult(labelKey, confidence);
-
-            // Fetch disease info from SQLite
-            Disease disease = dbHelper.getDiseaseById(labelKey);
-            res.setDisease(disease);
-
-            predictions.add(res);
-        }
-
-        // Sort descending by confidence score
-        Collections.sort(predictions);
-
-        // Return Top 3 predictions
-        return predictions.subList(0, Math.min(3, predictions.size()));
-    }
 
     public void close() {
         if (interpreter != null) {

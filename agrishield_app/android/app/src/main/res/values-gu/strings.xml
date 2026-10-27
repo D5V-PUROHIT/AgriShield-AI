@@ -27,6 +27,15 @@
     <string name="retake_photo">ફરીથી ફોટો લો</string>
     <string name="view_diagnosis_anyway">તો પણ સંભવિત નિદાન જુઓ</string>
 
+    <string name="not_a_plant_title">કોઈ પાક કે પાંદડું મળ્યું નથી</string>
+    <string name="not_a_plant_desc">અપલોડ કરેલી તસવીરમાં કોઈ છોડ કે પાકનું પાંદડું દેખાતું નથી. AgriShield AI ખાસ કરીને છોડના રોગોના નિદાન માટે બનાવવામાં આવ્યું છે.</string>
+    <string name="not_a_plant_guide_title">ફોટો લેવા માટેની માર્ગદર્શિકા:</string>
+    <string name="not_a_plant_guide_1">• છોડના ફક્ત એક સ્પષ્ટ પાંદડાને ફ્રેમમાં રાખો.</string>
+    <string name="not_a_plant_guide_2">• નિર્જીવ વસ્તુઓ, માણસો અથવા દૂરના વૃક્ષોના ફોટા ન લો.</string>
+    <string name="not_a_plant_guide_3">• ટામેટાં જેવા ફળવાળા પાકમાં ફળને બદલે સીધા પાંદડા પર ફોકસ કરો.</string>
+    <string name="take_new_photo">નવો ફોટો લો</string>
+    <string name="choose_from_gallery">ગેલેરીમાંથી પસંદ કરો</string>
+
     <!-- Result Screen -->
     <string name="crop">પાક</string>
     <string name="disease">રોગ</string>

@@ -27,6 +27,15 @@
     <string name="retake_photo">दोबारा फोटो लें</string>
     <string name="view_diagnosis_anyway">फिर भी संभावित निदान देखें</string>
 
+    <string name="not_a_plant_title">कोई फसल या पत्ती नहीं मिली</string>
+    <string name="not_a_plant_desc">अपलोड की गई फोटो में कोई पौधा या फसल की पत्ती नहीं दिख रही है। AgriShield AI विशेष रूप से पौधों के रोगों के निदान के लिए बनाया गया है।</string>
+    <string name="not_a_plant_guide_title">फोटो लेने के दिशा-निर्देश:</string>
+    <string name="not_a_plant_guide_1">• पौधे की केवल एक स्पष्ट पत्ती को फ्रेम में रखें।</string>
+    <string name="not_a_plant_guide_2">• निर्जीव वस्तुओं, इंसानों या दूर के पेड़ों की फोटो न लें।</string>
+    <string name="not_a_plant_guide_3">• टमाटर जैसे फलों वाली फसल में फल के बजाय सीधे पत्ती पर फोकस करें।</string>
+    <string name="take_new_photo">नई फोटो लें</string>
+    <string name="choose_from_gallery">गैलरी से चुनें</string>
+
     <!-- Result Screen -->
     <string name="crop">फसल</string>
     <string name="disease">बीमारी</string>

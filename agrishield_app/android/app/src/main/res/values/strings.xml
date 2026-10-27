@@ -27,6 +27,15 @@
     <string name="retake_photo">Retake Photo</string>
     <string name="view_diagnosis_anyway">View Best Match Anyway</string>
 
+    <string name="not_a_plant_title">No Crop or Leaf Detected</string>
+    <string name="not_a_plant_desc">The uploaded image does not appear to contain a recognized plant leaf or agricultural crop. AgriShield AI is designed specifically for crop pathology.</string>
+    <string name="not_a_plant_guide_title">Photo Scouting Guidelines:</string>
+    <string name="not_a_plant_guide_1">• Place a single crop leaf flat and clearly visible in the frame.</string>
+    <string name="not_a_plant_guide_2">• Avoid photographing non-living objects, humans, or distant canopies.</string>
+    <string name="not_a_plant_guide_3">• For fruiting crops like tomato, focus directly on an infected leaf blade rather than the fruit.</string>
+    <string name="take_new_photo">Take New Photo</string>
+    <string name="choose_from_gallery">Choose from Gallery</string>
+
     <!-- Result Screen -->
     <string name="crop">Crop</string>
     <string name="disease">Disease</string>
