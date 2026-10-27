@@ -164,7 +164,7 @@ public class TFliteClassifier {
         // Resize bitmap to 224x224
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, INPUT_SIZE, INPUT_SIZE, true);
 
-        // Convert Bitmap to ByteBuffer normalized [-1.0, 1.0] matching MobileNetV2 preprocess_input
+        // Convert Bitmap to ByteBuffer normalized [0.0, 1.0] matching model training (rescale = 1.0 / 255.0)
         ByteBuffer byteBuffer = ByteBuffer.allocateDirect(4 * INPUT_SIZE * INPUT_SIZE * PIXEL_SIZE);
         byteBuffer.order(ByteOrder.nativeOrder());
 
@@ -175,11 +175,15 @@ public class TFliteClassifier {
         for (int i = 0; i < INPUT_SIZE; ++i) {
             for (int j = 0; j < INPUT_SIZE; ++j) {
                 final int val = intValues[pixel++];
-                // Exact MobileNetV2 normalization: (pixel - 127.5) / 127.5 -> [-1.0, 1.0]
-                byteBuffer.putFloat((((val >> 16) & 0xFF) - IMAGE_MEAN) / IMAGE_STD);
-                byteBuffer.putFloat((((val >> 8) & 0xFF) - IMAGE_MEAN) / IMAGE_STD);
-                byteBuffer.putFloat(((val & 0xFF) - IMAGE_MEAN) / IMAGE_STD);
+                // PlantVillage MobileNetV2 was trained with rescale=1./255 -> [0.0, 1.0]
+                byteBuffer.putFloat(((val >> 16) & 0xFF) / 255.0f);
+                byteBuffer.putFloat(((val >> 8) & 0xFF) / 255.0f);
+                byteBuffer.putFloat((val & 0xFF) / 255.0f);
             }
+        }
+
+        if (scaledBitmap != originalBitmap) {
+            scaledBitmap.recycle();
         }
 
         // Run inference
